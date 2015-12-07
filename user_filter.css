@@ -1,0 +1,17 @@
+.user_filter {
+  border-bottom: 1px dashed;
+  color: #3a85ad;
+  cursor: pointer;
+  position: relative;
+}
+
+.user_info {
+  background: #eee none repeat scroll 0 0;
+  bottom: 100%;
+  box-shadow: 0 5px 10px -5px #787878;
+  left: 0;
+  padding: 15px;
+  position: absolute;
+  z-index: 2;
+  display: none;
+}
