@@ -8,18 +8,35 @@ function user_filter_menu() {
     'page callback' => 'user_filter_info',
     'page arguments' => array(3),
     'type' => MENU_CALLBACK,
-    'access arguments' => array('access content'),
+    'access arguments' => array('access user profiles'),
     'delivery callback' => 'user_filter_ajax_callback',
     'file' => 'user_filter.page.inc',
   );
   return $items;
 }
 
+function user_filter_theme() {
+  $module_path = drupal_get_path('module', 'user_filter');
+  $base = array(
+    'path' => "$module_path/theme",   
+  );
+  return array(
+    'user_info' => $base + array(
+      'variables' => array(
+        'user' => NULL,
+        'cu' => NULL,
+      ),
+      'template' => 'user_info',
+    ),
+  );
+}
+
 /**
  * Callback for view user tip
  */
-function user_filter_ajax_callback($result) {
-  $content = drupal_render($result);
+function user_filter_ajax_callback($profile){
+  global $user;
+  $content = theme('user_info', array('user' => $profile, 'cu' => $user));
   print $content;
   drupal_page_footer();
 }
@@ -44,7 +61,7 @@ function user_filter_filter_info() {
     'title' => t('User filter'),
     'description' => t('View user info by "@username"'),
     'process callback' => 'user_filter_filter_process',
-    'settings callback' => 'user_filter_filter_settings',
+    'cache' => FALSE,
   );
   return $filters;
 }
@@ -53,15 +70,19 @@ function user_filter_filter_info() {
  * Filter process
  */
 function user_filter_filter_process($text, $filter, $format) {
-  if (!empty($text)) {
+  if(!empty($text)) {
     preg_match_all('/[@][\w\d]+/', $text, $matches);
     foreach($matches[0] as $match){
       $name = drupal_substr($match, 1, $length = NULL);
-      $user = user_load_by_name($name);
-      if(is_object($user)){
+      $username = user_load_by_name($name);
+      if(is_object($username)){
         $text = preg_replace('/' . $match . '/', '<span class="user_filter" data-user="' . $name . '">' . $match . '</span>', $text);
+        //$text = preg_replace('/' . $match . '/', '<span id="' . $name . '_info" class="user_filter" data-poload="/user/info/ajax/' . $name . '">' . $match . '</span>', $text);
       }
     }
+    return $text;
+  }
+  else{
     return $text;
   }
 }
@@ -72,5 +93,7 @@ function user_filter_filter_process($text, $filter, $format) {
  */
 function user_filter_init() {
   drupal_add_css(drupal_get_path('module', 'user_filter') . '/user_filter.css');
-  drupal_add_js(drupal_get_path('module', 'user_filter') . '/user_filter.js');
+  drupal_add_js(drupal_get_path('module', 'user_filter') . '/js/bootstrap-tooltip.js');
+  drupal_add_js(drupal_get_path('module', 'user_filter') . '/js/bootstrap-popover.js');
+  drupal_add_js(drupal_get_path('module', 'user_filter') . '/js/user_filter.js');
 }
