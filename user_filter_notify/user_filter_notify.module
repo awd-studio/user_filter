@@ -1,0 +1,58 @@
+<?php
+
+/**
+* Implements of hook_form_alter().
+*/
+function user_filter_notify_form_alter(&$form, &$form_state, $form_id){
+  if($form['#form_id'] == 'user_admin_settings'){
+    $default = variable_get('user_info_notify');
+    $form['email']['user_info'] = array();
+    $form['email']['user_info']['#type'] = 'fieldset';
+    $form['email']['user_info']['#title'] = 'Уведомление пользователя об упоминании';
+    $form['email']['user_info']['#collapsible'] = TRUE;
+    $form['email']['user_info']['#collapsed'] = FALSE;
+    $form['email']['user_info']['#collapsed'] = 'Редактировать E-mail сообщение, отсылаемое пользователю, при упоминании его в материале или комментарии указанием "@username"';
+    $form['email']['user_info']['user_filter_mention_notify'] = array(
+      '#type' => 'checkbox',
+      '#title' => 'Уведомить пользователя, когда его учётная запись была упомянута.',
+      '#default_value' => $default['user_filter_mention_notify'],
+    );
+    $form['email']['user_info']['settings'] = array(
+      '#type' => 'container',
+      '#states' => array(
+        'invisible' => array(
+          'input[name="user_filter_mention_notify"]' => array('checked' => FALSE),
+        ),
+      ),
+      'user_filter_mention_notify_subject' => array(
+        '#type' => 'textfield',
+        '#title' => 'Тема',
+        '#default_value' => $default['user_filter_mention_notify_subject'],
+        '#maxlength' => 180,
+        '#token_types' => array('node', 'user', 'comment'),
+      ),
+      'user_filter_mention_notify_body' => array(
+        '#type' => 'textarea',
+        '#title' => 'Содержимое',
+        '#default_value' => $default['user_filter_mention_notify_body'],
+        '#rows' => 15,
+        '#token_types' => 'user',
+      ),
+    );
+    $form['#submit'][] = 'user_filter_notify_form_submit';
+    dpm($form);
+  }
+}
+
+function user_filter_notify_form_validate($form, &$form_state){
+    //dpm($form);
+}
+
+function user_filter_notify_form_submit($form, &$form_state){
+  $user_info_notify = array(
+    'user_filter_mention_notify' => $form_state['values']['user_filter_mention_notify'],
+    'user_filter_mention_notify_subject' => $form_state['values']['user_filter_mention_notify_subject'],
+    'user_filter_mention_notify_body' => check_plain($form_state['values']['user_filter_mention_notify_body']),
+  );
+  variable_set('user_info_notify', $user_info_notify);
+}

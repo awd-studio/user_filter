@@ -1,0 +1,20 @@
+<?php
+
+/**
+ * Implements hook_install().
+ */
+function user_filter_notify_install() {
+  variable_set('user_info_notify', array(
+    'user_filter_mention_notify' => TRUE,
+    'user_filter_mention_notify_subject' => 'Вас упомянули на Drupal.ru',
+    'user_filter_mention_notify_body' => 'Пользователь [@commenter] упомянул Вас в материале [@node]
+    Просмотр темы.',
+  ));
+}
+
+/**
+ * Implements hook_uninstall()
+ */
+function user_filter_notify_uninstall() {
+	variable_del('user_info_notify'); 
+}
