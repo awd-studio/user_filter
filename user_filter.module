@@ -42,17 +42,6 @@ function user_filter_ajax_callback($profile){
 }
 
 /**
- * Implements hook_entity_info_alter()
- * Add view mode 'user_info' for users
- */
-function user_filter_entity_info_alter(&$entity_info){
-  $entity_info['user']['view modes']['user_info'] = array(
-    'label' => t('User info'),
-    'custom settings' => TRUE,
-  );
-}
-
-/**
  * Implements hook_filter_info()
  */
 function user_filter_filter_info() {
