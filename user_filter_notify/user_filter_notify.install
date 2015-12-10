@@ -5,10 +5,12 @@
  */
 function user_filter_notify_install() {
   variable_set('user_info_notify', array(
-    'user_filter_mention_notify' => TRUE,
-    'user_filter_mention_notify_subject' => 'Вас упомянули на Drupal.ru',
-    'user_filter_mention_notify_body' => 'Пользователь [@commenter] упомянул Вас в материале [@node]
-    Просмотр темы.',
+    'notify' => TRUE,
+    'subject' => '[user:name], Вас упомянули на «[site:name]»',
+    'message' => 'Пользователь <a href="[author:path]" title="Пользователь [author:name]">[author:name]</a> упомянул Вас в материале <a href="[node:url]" title="[node:title]">[node:title]</a>
+<a href="[node:url]" title="[node:title]">Просмотр темы</a>.
+
+-- Команда сайта «<a href="[site:url]" title="[site:name]">[site:name]</a>»',
   ));
 }
 

@@ -71,13 +71,10 @@ function user_filter_filter_info() {
  */
 function user_filter_filter_process($text, $filter, $format) {
   if(!empty($text)) {
-    preg_match_all('/[@][\w\d]+/', $text, $matches);
-    foreach($matches[0] as $match){
-      $name = drupal_substr($match, 1, $length = NULL);
-      $username = user_load_by_name($name);
-      if(is_object($username)){
-        $text = preg_replace('/' . $match . '/', '<span class="user_filter" data-user="' . $name . '">' . $match . '</span>', $text);
-        //$text = preg_replace('/' . $match . '/', '<span id="' . $name . '_info" class="user_filter" data-poload="/user/info/ajax/' . $name . '">' . $match . '</span>', $text);
+    $users = user_filter_mention($text);
+    if(!empty($users)){
+      foreach($users as $user){
+        $text = preg_replace('/@' . $user->name . '/', '<span class="user_filter" data-user="' . $user->name . '">@' . $user->name . '</span>', $text);
       }
     }
     return $text;
@@ -87,13 +84,26 @@ function user_filter_filter_process($text, $filter, $format) {
   }
 }
 
+function user_filter_mention($text){
+  if(!empty($text)) {
+    $users = array();
+    preg_match_all('/[@][\w\d]+/', $text, $matches);
+    foreach($matches[0] as $match){
+      $name = drupal_substr($match, 1, $length = NULL);
+      $user = user_load_by_name($name);
+      if(is_object($user)){
+        $users[] = $user;
+      }
+    }
+    return $users;
+  }
+}
+
 /**
  * Implements hook_init()
  * Add css and js files
  */
 function user_filter_init() {
   drupal_add_css(drupal_get_path('module', 'user_filter') . '/user_filter.css');
-  drupal_add_js(drupal_get_path('module', 'user_filter') . '/js/bootstrap-tooltip.js');
-  drupal_add_js(drupal_get_path('module', 'user_filter') . '/js/bootstrap-popover.js');
   drupal_add_js(drupal_get_path('module', 'user_filter') . '/js/user_filter.js');
 }
