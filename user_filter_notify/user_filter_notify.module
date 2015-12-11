@@ -12,6 +12,10 @@ function user_filter_notify_token_info() {
     'description' => t('Content author'),
     'needs-data' => 'user',
   );
+  $info['types']['text'] = array(
+    'name' => t('Text'),
+    'description' => t('Original Text'),
+  );
   
   $info['tokens']['author']['uid'] = array(
     'name' => t('Author UID'),
@@ -29,6 +33,14 @@ function user_filter_notify_token_info() {
     'name' => t('Author path'),
     'description' => t('Path to Author profile'),
   );
+  $info['tokens']['text']['original'] = array(
+    'name' => t('Original text'),
+    'description' => t('Original Formatted Text'),
+  );
+  $info['tokens']['text']['simple'] = array(
+    'name' => t('Text without tags'),
+    'description' => t('Strip all HTML-tags in text'),
+  );
   
   return $info;
 }
@@ -39,6 +51,9 @@ function user_filter_notify_token_info() {
 function user_filter_notify_tokens($type, $tokens, array $data = array(), array $options = array()) {
   if(isset($data['author'])){
     $author = $data['author'];
+  }
+  if(isset($data['text'])){
+    $text = $data['text'];
   }
   
   $replacements = array();
@@ -62,6 +77,19 @@ function user_filter_notify_tokens($type, $tokens, array $data = array(), array 
     }
   }
 
+  if ($type == 'text' && !empty($text)) {
+    foreach ($tokens as $name => $original) {
+      switch ($name) {
+        case 'original':
+          $replacements[$original] = $text;
+          break;
+        case 'simple':
+          $replacements[$original] = strip_tags($text);
+          break;
+      }
+    }
+  }
+
   return $replacements;
 }
 
@@ -76,11 +104,11 @@ function user_filter_notify_form_alter(&$form, &$form_state, $form_id){
     $form['user_info']['#collapsible'] = TRUE;
     $form['user_info']['#collapsed'] = FALSE;
     $form['user_info']['#group'] = 'email';
-    $form['user_info']['#title'] = 'Уведомление пользователя об упоминании';
-    $form['user_info']['#description'] = 'Редактировать E-mail сообщение, отсылаемое пользователю, при упоминании его в материале или комментарии указанием "@username"';
+    $form['user_info']['#title'] = t('Notification by the mention');
+    $form['user_info']['#description'] = t('Edit Email message sent to the user at the mention of its publication in the "@username"');
     $form['user_info']['notify'] = array(
       '#type' => 'checkbox',
-      '#title' => 'Уведомить пользователя, когда его учётная запись была упомянута.',
+      '#title' => t('Notify the user when his account was mentioned.'),
       '#default_value' => $default['notify'],
     );
     $form['user_info']['settings'] = array(
@@ -165,8 +193,8 @@ function user_filter_notify($entity, $type){
     if(!empty($body)){
       $users = user_filter_mention($body);
       foreach($users as $user){
-        $theme = token_replace($pattern['subject'], array('user' => $user, 'author' => $author, 'node' => $node, 'comment' => $comment));
-        $message = token_replace($pattern['message'], array('user' => $user, 'author' => $author, 'node' => $node, 'comment' => $comment));
+        $theme = token_replace($pattern['subject'], array('user' => $user, 'author' => $author, 'node' => $node, 'comment' => $comment, 'text' => $body));
+        $message = token_replace($pattern['message'], array('user' => $user, 'author' => $author, 'node' => $node, 'comment' => $comment, 'text' => $body));
         $from = variable_get('site_mail', ini_get('sendmail_from'));
         drupal_mail('user_filter_notify', 'user_filter_notify', $user->mail, language_default(), array('context' => array(
           'subject' => $theme,
