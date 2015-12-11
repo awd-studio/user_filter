@@ -11,7 +11,7 @@
           id.load('/user/info/ajax/' + user);
           var posTop = id.outerHeight(true);
           id.css({
-            'bottom': $(document).height() - position.top - 10,
+            'bottom': $(document).height() - position.top + 10,
             'left': position.left,
           }).fadeIn();
           id.hover(
@@ -23,16 +23,17 @@
             }
           );
         },
-        function(){          
+        function(){
+          var id = $('#' + $(this).attr('data-user') + '_info');
           var timer = setTimeout(function checkHover() {
-            if($('.user_info').hasClass('show_info')){
-              var timerId = setTimeout(checkHover, 400);
+            if(id.hasClass('show_info')){
+              var timerId = setTimeout(checkHover, 200);
             }
             else{
               clearTimeout(timer);
-              $('.user_info').fadeOut().detach();
+              id.fadeOut().detach();
             }
-          }, 400);
+          }, 200);
         }
       );      
     }
