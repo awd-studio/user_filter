@@ -24,7 +24,7 @@
       }?></h1>
     <div class="pm">
       <?php print l('Отправить сообщение '.$user->name, 'messages/new/'. $user->uid); ?>
-    </div>
+    </div> 
   <?php else: ?>
     <h2 class="name">Просмотр только для авторизировавшихся!</h2>
   <?php endif; ?>
